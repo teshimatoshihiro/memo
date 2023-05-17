@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>画像データ整理</title>
+  <link rel="stylesheet" href="css/sample.css">
+
+  <head>
+    <title>画像データ整理</title>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script>
+      $(document).ready(function () {
+        $('#saveBtn').click(function () {
+          var fileInput = $('#imageInput')[0];
+          var nameInput = $('#nameInput')[0];
+          var files = fileInput.files;
+          var imageArray = [];
+
+          for (var i = 0; i < files.length; i++) {
+            var file = files[i];
+            var reader = new FileReader();
+
+            reader.onload = function (event) {
+              var imageData = event.target.result;
+              var imageName = nameInput.value;
+              var imageObject = { name: imageName, data: imageData };
+              imageArray.push(imageObject);
+
+              // 全ての画像データを保存したら、localStorageに格納
+              if (imageArray.length === files.length) {
+                localStorage.setItem("imageData", JSON.stringify(imageArray));
+
+                // データの利用例
+                displayImages(imageArray);
+                console.log(imageArray); // 配列の内容をコンソールに表示
+              }
+            };
+
+            reader.readAsDataURL(file);
+          }
+        });
+
+        $('#deleteBtn').click(function () {
+          localStorage.removeItem("imageData");
+          console.log("画像データを削除しました");
+          $('#imageContainer').empty();
+        });
+
+        function displayImages(images) {
+          var container = $('#imageContainer');
+          container.empty();
+
+          for (var i = 0; i < images.length; i++) {
+            var image = images[i];
+            var imgElement = $('<img>').attr('src', image.data);
+            var captionElement = $('<p>').text(image.name);
+            var divElement = $('<div>').addClass('image-item').append(imgElement, captionElement);
+            container.append(divElement);
+          }
+        }
+      });
+    </script>
+    <style>
+      .image-item {
+        display: inline-block;
+        margin: 10px;
+        text-align: center;
+      }
+    </style>
+  </head>
+
+<body>
+  <h2>画像データ保存</h2>
+  <input type="file" id="imageInput" multiple>
+  <br>
+  <input type="text" id="nameInput" placeholder="画像の名前">
+  <br>
+  <button id="saveBtn">保存</button>
+  <button id="deleteBtn">削除</button>
+  <div id="imageContainer"></div>
+</body>
+
+</html>
